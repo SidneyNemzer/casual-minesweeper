@@ -6,6 +6,8 @@ import Css
         ( px
         , hex
         , em
+        , width
+        , height
         , border3
         , padding3
         , backgroundColor
@@ -15,6 +17,11 @@ import Css
         , color
         , listStyle
         , cursor
+        , display
+        , inlineFlex
+        , alignItems
+        , justifyContent
+        , center
         )
 import Html
 import Html.Styled exposing (Html, span, text, div)
@@ -54,26 +61,35 @@ onRightClick msg =
 
 
 squareWrapper : String -> Css.Color -> Maybe (MouseButton -> msg) -> Bool -> Html msg
-squareWrapper content setColor clickMsg raised =
+squareWrapper content textColor clickMsg raised =
     span
         ([ css
-            ([ padding3 (px 1) (px 10) (px 3)
-             , backgroundColor Colors.lightGray
-             , fontWeight Css.bold
+            ([ backgroundColor <|
+                if raised then
+                    Colors.white
+                else
+                    Colors.black
+             , display inlineFlex
+             , alignItems center
+             , justifyContent center
+             , width (px 40)
+             , height (px 40)
              , fontFamily Css.monospace
-             , fontSize (em 3)
-             , color setColor
-             , border3 (px 1) Css.solid Colors.gray
-             ]
-                ++ [ case clickMsg of
-                        Just _ ->
-                            cursor Css.pointer
+             , fontSize (px 20)
+             , color textColor
+             , border3 (px 1) Css.solid Colors.lightGray
+             , case clickMsg of
+                Just _ ->
+                    cursor Css.pointer
 
-                        Nothing ->
-                            cursor Css.default
-                   ]
+                Nothing ->
+                    cursor Css.default
+             ]
                 ++ if raised then
-                    [ Css.property "box-shadow" "inset #7b7b7b -3px -3px 0px 1px, inset white 3px 3px 0px 2px" ]
+                    [ Css.property
+                        "box-shadow"
+                        (Colors.blackString ++ " 0 0 5px 0")
+                    ]
                    else
                     []
             )
@@ -85,55 +101,58 @@ squareWrapper content setColor clickMsg raised =
 
 
 viewSquare : Maybe (Point -> MouseButton -> msg) -> Location -> ( Square, Visibility ) -> Html msg
-viewSquare clickMsg ( y, x ) ( square, visible ) =
+viewSquare pointClickMsg ( y, x ) ( square, visible ) =
     let
+        clickMsg =
+            Maybe.map (\msg -> msg ( x, y )) pointClickMsg
+
         staticSquare number color =
             squareWrapper number color Nothing False
     in
         case visible of
             Covered ->
-                squareWrapper nonBreakingSpace Colors.gray (Maybe.map (\msg -> msg ( x, y )) clickMsg) True
+                squareWrapper nonBreakingSpace Colors.white clickMsg True
 
             Visible ->
                 case square of
                     Mine ->
-                        staticSquare "*" Colors.black
+                        squareWrapper "*" Colors.red Nothing False
 
                     Empty ->
-                        staticSquare nonBreakingSpace Colors.lightGray
+                        squareWrapper nonBreakingSpace Colors.red Nothing False
 
                     Number1 ->
-                        staticSquare "1" Colors.blue
+                        squareWrapper "1" Colors.red Nothing False
 
                     Number2 ->
-                        staticSquare "2" Colors.green
+                        squareWrapper "2" Colors.red Nothing False
 
                     Number3 ->
-                        staticSquare "3" Colors.red
+                        squareWrapper "3" Colors.red Nothing False
 
                     Number4 ->
-                        staticSquare "4" Colors.darkBlue
+                        squareWrapper "4" Colors.red Nothing False
 
                     Number5 ->
-                        staticSquare "5" Colors.maroon
+                        squareWrapper "5" Colors.red Nothing False
 
                     Number6 ->
-                        staticSquare "6" Colors.cyan
+                        squareWrapper "6" Colors.red Nothing False
 
                     Number7 ->
-                        staticSquare "7" Colors.black
+                        squareWrapper "7" Colors.red Nothing False
 
                     Number8 ->
-                        staticSquare "8" Colors.gray
+                        squareWrapper "8" Colors.red Nothing False
 
             Flagged ->
-                squareWrapper "F" Colors.red (Maybe.map (\msg -> msg ( x, y )) clickMsg) True
+                squareWrapper "F" Colors.red clickMsg True
 
 
 board : Maybe (Point -> MouseButton -> msg) -> Game.GameBoard -> Html.Html msg
 board clickMsg gameBoard =
     Matrix.mapWithLocation (viewSquare clickMsg) gameBoard
         |> Matrix.toList
-        |> List.map (div [ css [ Css.marginTop (px 6) ] ])
+        |> List.map (div [])
         |> div [ css [] ]
         |> Html.Styled.toUnstyled

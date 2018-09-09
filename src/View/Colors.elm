@@ -5,44 +5,29 @@ import Css exposing (hex)
 
 lightGray : Css.Color
 lightGray =
-    hex "#bdbdbd"
-
-
-blue : Css.Color
-blue =
-    hex "#0000ff"
-
-
-green : Css.Color
-green =
-    hex "#007b00"
+    hex "#8F8F8F "
 
 
 red : Css.Color
 red =
-    hex "#ff0000"
+    hex "#E75A5A"
 
 
-darkBlue : Css.Color
-darkBlue =
-    hex "#00007b"
-
-
-maroon : Css.Color
-maroon =
-    hex "#7b0000"
-
-
-cyan : Css.Color
-cyan =
-    hex "#007b7b"
+blackString : String
+blackString =
+    "#000000"
 
 
 black : Css.Color
 black =
-    hex "#000000"
+    hex blackString
 
 
 gray : Css.Color
 gray =
-    hex "#7b7b7b"
+    hex "#616161"
+
+
+white : Css.Color
+white =
+    hex "#ffffff"

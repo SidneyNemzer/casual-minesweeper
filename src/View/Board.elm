@@ -22,17 +22,17 @@ import Data.Board exposing (Square(..), Board)
 import View.Colors as Colors
 
 
-squareWrapper : String -> Maybe Css.Color -> Html msg
-squareWrapper content maybeColor =
+squareWrapper : String -> Html msg
+squareWrapper content =
     span
         [ css
-            [ border3 (px 1) Css.solid Colors.black
+            [ border3 (px 1) Css.solid Colors.lightGray
             , padding3 (px 1) (px 10) (px 3)
             , backgroundColor Colors.lightGray
             , fontWeight Css.bold
             , fontFamily Css.monospace
             , fontSize (em 3)
-            , color (Maybe.withDefault Colors.black maybeColor)
+            , color Colors.red
             ]
         ]
         [ text content ]
@@ -41,39 +41,39 @@ squareWrapper content maybeColor =
 viewSquare : Square -> Html msg
 viewSquare square =
     let
-        colored number color =
-            squareWrapper number (Just color)
+        colored number =
+            squareWrapper number
     in
         case square of
             Mine ->
-                squareWrapper "*" Nothing
+                squareWrapper "*"
 
             Empty ->
-                colored "0" Colors.lightGray
+                colored "0"
 
             Number1 ->
-                colored "1" Colors.blue
+                colored "1"
 
             Number2 ->
-                colored "2" Colors.green
+                colored "2"
 
             Number3 ->
-                colored "3" Colors.red
+                colored "3"
 
             Number4 ->
-                colored "4" Colors.darkBlue
+                colored "4"
 
             Number5 ->
-                colored "5" Colors.maroon
+                colored "5"
 
             Number6 ->
-                colored "6" Colors.cyan
+                colored "6"
 
             Number7 ->
-                colored "7" Colors.black
+                colored "7"
 
             Number8 ->
-                colored "8" Colors.gray
+                colored "8"
 
 
 view : Board -> Html.Html msg
