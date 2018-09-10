@@ -127,17 +127,17 @@ nextMine center seed locationGen board =
 
 generateBoardHelper : Maybe Point -> Int -> Seed -> Generator Location -> Board -> Board
 generateBoardHelper center mineCount seed nextSquare board =
-    let
-        ( ( x, y ), newSeed ) =
-            nextMine center seed nextSquare board
+    if mineCount >= 1 then
+        let
+            ( ( x, y ), newSeed ) =
+                nextMine center seed nextSquare board
 
-        newBoard =
-            insertMine x y board
-    in
-        if mineCount >= 1 then
+            newBoard =
+                insertMine x y board
+        in
             generateBoardHelper center (mineCount - 1) newSeed nextSquare newBoard
-        else
-            board
+    else
+        board
 
 
 locationGenerator : Int -> Int -> Generator Location
@@ -148,15 +148,15 @@ locationGenerator width height =
 generate : Config -> Result String Board
 generate { center, mines, width, height, seed } =
     let
-        requiredSquares =
+        minimumArea =
             if center /= Nothing then
                 mines + 9
             else
                 mines
     in
-        if width * height <= requiredSquares then
+        if width * height < minimumArea then
             Err <|
-                toString requiredSquares
+                toString minimumArea
                     ++ " squares are required but "
                     ++ toString width
                     ++ " by "
