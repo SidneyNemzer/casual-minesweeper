@@ -93,27 +93,18 @@ insertMine x y board =
 
 
 nearCenter : Maybe Point -> Point -> Bool
-nearCenter maybePoint point =
-    case maybePoint of
-        Just ( cX, cY ) ->
-            point
-                == ( cX - 1, cY - 1 )
-                || point
-                == ( cX, cY - 1 )
-                || point
-                == ( cX + 1, cY - 1 )
-                || point
-                == ( cX - 1, cY )
-                || point
-                == ( cX, cY )
-                || point
-                == ( cX + 1, cY )
-                || point
-                == ( cX - 1, cY + 1 )
-                || point
-                == ( cX, cY + 1 )
-                || point
-                == ( cX + 1, cY + 1 )
+nearCenter center point =
+    case center of
+        Just ( x, y ) ->
+            (point == ( x - 1, y - 1 ))
+                || (point == ( x, y - 1 ))
+                || (point == ( x + 1, y - 1 ))
+                || (point == ( x - 1, y ))
+                || (point == ( x, y ))
+                || (point == ( x + 1, y ))
+                || (point == ( x - 1, y + 1 ))
+                || (point == ( x, y + 1 ))
+                || (point == ( x + 1, y + 1 ))
 
         Nothing ->
             False
@@ -126,7 +117,7 @@ nextMine center seed locationGen board =
             Random.step locationGen seed
 
         square =
-            Matrix.get ( y, x ) board |> Maybe.withDefault (Empty)
+            Matrix.get ( y, x ) board |> Maybe.withDefault Empty
     in
         if square == Mine || nearCenter center ( x, y ) then
             nextMine center newSeed locationGen board
@@ -168,11 +159,10 @@ generate { center, mines, width, height, seed } =
                 toString requiredSquares
                     ++ " squares are required but "
                     ++ toString width
-                    ++ " x "
+                    ++ " by "
                     ++ toString height
-                    ++ " only has an area of "
+                    ++ " squares only has an area of "
                     ++ toString (width * height)
-                    ++ " squares"
         else
             Matrix.matrix height width (always Empty)
                 |> generateBoardHelper center mines seed (locationGenerator width height)
