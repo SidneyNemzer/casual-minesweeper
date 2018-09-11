@@ -22,8 +22,13 @@ import Css
         , alignItems
         , justifyContent
         , center
+        , margin
+        , auto
+        , whiteSpace
+        , noWrap
+        , textAlign
+        , overflow
         )
-import Html
 import Html.Styled exposing (Html, span, text, div)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (onClick)
@@ -149,10 +154,9 @@ viewSquare pointClickMsg ( y, x ) ( square, visible ) =
                 squareWrapper "F" Colors.red clickMsg True
 
 
-board : Maybe (Point -> MouseButton -> msg) -> Game.GameBoard -> Html.Html msg
+board : Maybe (Point -> MouseButton -> msg) -> Game.GameBoard -> Html msg
 board clickMsg gameBoard =
     Matrix.mapWithLocation (viewSquare clickMsg) gameBoard
         |> Matrix.toList
-        |> List.map (div [])
-        |> div [ css [] ]
-        |> Html.Styled.toUnstyled
+        |> List.map (div [ css [ whiteSpace noWrap ] ])
+        |> div [ css [ textAlign center, overflow auto ] ]

@@ -5,7 +5,7 @@ import Css exposing (hex)
 
 lightGray : Css.Color
 lightGray =
-    hex "#8F8F8F "
+    hex "#8F8F8F"
 
 
 red : Css.Color
@@ -31,3 +31,8 @@ gray =
 white : Css.Color
 white =
     hex "#ffffff"
+
+
+text : Css.Color
+text =
+    hex "#545454"

@@ -2,10 +2,25 @@ module Main exposing (main)
 
 import Data.Board exposing (Point)
 import Data.Game as Game exposing (GameBoard, GameState(..))
-import Html exposing (Html, div, input, label, text)
-import Html.Attributes exposing (class, type_, value)
-import Html.Events exposing (onInput)
+import Html
+import Html.Styled exposing (Html, div, input, label, text, h1)
+import Html.Styled.Attributes exposing (css, type_, value)
+import Html.Styled.Events exposing (onInput, onClick)
+import Css
+    exposing
+        ( Style
+        , fontFamilies
+        , qt
+        , textAlign
+        , center
+        , letterSpacing
+        , em
+        , fontSize
+        , px
+        , color
+        )
 import Random exposing (Generator, Seed)
+import View.Colors as Colors
 import View.Game exposing (MouseButton(..))
 
 
@@ -13,7 +28,7 @@ main : Program Never Model Msg
 main =
     Html.program
         { init = init
-        , view = view
+        , view = view >> Html.Styled.toUnstyled
         , update = update
         , subscriptions = always Sub.none
         }
@@ -165,8 +180,8 @@ viewNumberInput labelText currentInput msg =
 
 button : Msg -> String -> Html Msg
 button clickMsg content =
-    Html.button
-        [ Html.Events.onClick clickMsg ]
+    Html.Styled.button
+        [ onClick clickMsg ]
         [ text content ]
 
 
@@ -176,13 +191,32 @@ viewEmptyBoard model =
         |> View.Game.board (Just (\point button -> StartGame point))
 
 
+monospaceFont : Style
+monospaceFont =
+    fontFamilies [ qt "PT Mono", "monospace" ]
+
+
+title : Html msg
+title =
+    h1
+        [ css
+            [ textAlign center
+            , monospaceFont
+            , letterSpacing (em 0.62)
+            , fontSize (px 48)
+            , color Colors.text
+            ]
+        ]
+        [ text "Casual Minesweeper" ]
+
+
 view : Model -> Html Msg
 view model =
     let
         main =
             case model.state of
                 Setup ->
-                    [ Html.h1 [] [ text "Setup" ]
+                    [ title
                     , viewEmptyBoard model
                     , viewNumberInput "Seed" model.seed SetSeed
                     , viewNumberInput "Mines" model.mines SetMines
@@ -191,19 +225,19 @@ view model =
                     ]
 
                 Playing gameBoard ->
-                    [ Html.h1 [] [ text "Minesweeper" ]
+                    [ title
                     , View.Game.board (Just SquareClicked) gameBoard
                     , button ResetGame "Reset"
                     ]
 
                 EndWin gameBoard ->
-                    [ Html.h1 [] [ text "Win!" ]
+                    [ title
                     , View.Game.board Nothing gameBoard
                     , button ResetGame "New Game"
                     ]
 
                 EndLose point gameBoard ->
-                    [ Html.h1 [] [ text ":(" ]
+                    [ title
                     , View.Game.board Nothing gameBoard
                     , button ResetGame "New Game"
                     , button UndoUncover "Undo"
