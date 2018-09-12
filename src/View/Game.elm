@@ -28,6 +28,10 @@ import Css
         , noWrap
         , textAlign
         , overflow
+        , boxShadow
+        , boxShadow5
+        , active
+        , none
         )
 import Html.Styled exposing (Html, span, text, div)
 import Html.Styled.Attributes exposing (css)
@@ -91,9 +95,10 @@ squareWrapper content textColor clickMsg raised =
                     cursor Css.default
              ]
                 ++ if raised then
-                    [ Css.property
-                        "box-shadow"
-                        (Colors.blackString ++ " 0 0 5px 0")
+                    [ boxShadow5 (px 0) (px 0) (px 5) (px 0) Colors.black
+                    , active
+                        [ boxShadow none
+                        ]
                     ]
                    else
                     []
