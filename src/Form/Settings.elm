@@ -55,6 +55,9 @@ form { onSubmit, state, action, loading, fields } =
                             , backgroundColor Colors.lightGray
                             , border (px 0)
                             , fontSize (px 24)
+                            , height (px 80)
+                            , outline none
+                            , cursor pointer
                             ]
                         ]
                         [ if state == Loading then
@@ -108,6 +111,7 @@ numberField { onChange, onBlur, disabled, value, error, showError, attributes } 
         [ css
             [ displayFlex
             , justifyContent spaceBetween
+            , marginBottom (px 50)
             ]
         ]
         [ label
@@ -134,7 +138,7 @@ numberField { onChange, onBlur, disabled, value, error, showError, attributes } 
                 , border (px 0)
                 , borderBottom3 (px 3) solid Colors.white
                 , fontSize (px 36)
-                , width (pct 40)
+                , width (px 200)
                 ]
              ]
                 |> withMaybeAttribute (toString >> Attributes.max) attributes.max
