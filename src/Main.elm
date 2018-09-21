@@ -313,6 +313,7 @@ title textColor =
             , letterSpacing (em 0.62)
             , fontSize (px 48)
             , color textColor
+            , fontWeight (int 300)
             ]
         ]
         [ text "Casual Minesweeper" ]
