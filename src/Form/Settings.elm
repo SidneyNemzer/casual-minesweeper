@@ -5,7 +5,6 @@ import Html.Styled.Attributes as Attributes exposing (css)
 import Html.Styled.Events as Events
 import Css exposing (..)
 import Form exposing (Form)
-import Form.Error exposing (Error)
 import Form.View exposing (ViewConfig, Model, FormConfig, State(..), NumberFieldConfig)
 import Style
 import View.Colors as Colors
@@ -88,11 +87,6 @@ maybeIf bool maybe =
         Nothing
 
 
-errorToString : Error -> String
-errorToString error =
-    ""
-
-
 withMaybeAttribute :
     (a -> Attribute msg)
     -> Maybe a
@@ -105,56 +99,57 @@ withMaybeAttribute toAttribute maybeValue attrs =
 
 numberField : NumberFieldConfig msg -> Html msg
 numberField { onChange, onBlur, disabled, value, error, showError, attributes } =
-    -- span []
-    --     [ span
-    span
-        [ css
-            [ displayFlex
-            , justifyContent spaceBetween
-            , marginBottom (px 50)
-            ]
-        ]
-        [ label
+    let
+        errorStyles =
+            if error /= Nothing && showError then
+                [ borderBottom3 (px 3) solid Colors.red ]
+            else
+                []
+    in
+        span
             [ css
-                [ color Colors.white
-                , Style.sansFont
-                , fontSize (px 36)
-                , fontWeight bold
-                , marginRight (px 20)
+                [ displayFlex
+                , justifyContent spaceBetween
+                , marginBottom (px 50)
                 ]
             ]
-            [ text attributes.label ]
-        , input
-            ([ Events.onInput (fromString (String.toFloat >> Result.toMaybe) value >> onChange)
-             , Attributes.disabled disabled
-             , Attributes.value (value |> Maybe.map toString |> Maybe.withDefault "")
-             , Attributes.placeholder attributes.placeholder
-             , Attributes.type_ "number"
-             , Attributes.step (toString attributes.step)
-             , css
-                [ backgroundColor Colors.gray
-                , color Colors.white
-                , outline none
-                , border (px 0)
-                , borderBottom3 (px 3) solid Colors.white
-                , fontSize (px 36)
-                , width (px 200)
+            [ label
+                [ css
+                    [ color Colors.white
+                    , Style.sansFont
+                    , fontSize (px 36)
+                    , fontWeight bold
+                    , marginRight (px 20)
+                    ]
                 ]
-             ]
-                |> withMaybeAttribute (toString >> Attributes.max) attributes.max
-                |> withMaybeAttribute (toString >> Attributes.min) attributes.min
-                |> withMaybeAttribute Events.onBlur onBlur
-            )
-            []
-        ]
+                [ text attributes.label ]
+            , input
+                ([ Events.onInput (fromString (String.toFloat >> Result.toMaybe) value >> onChange)
+                 , Attributes.disabled disabled
+                 , Attributes.value (value |> Maybe.map toString |> Maybe.withDefault "")
+                 , Attributes.placeholder attributes.placeholder
+                 , Attributes.type_ "number"
+                 , Attributes.step (toString attributes.step)
+                 , css
+                    ([ backgroundColor Colors.gray
+                     , color Colors.white
+                     , outline none
+                     , border (px 0)
+                     , borderBottom3 (px 3) solid Colors.white
+                     , fontSize (px 36)
+                     , width (px 200)
+                     ]
+                        ++ errorStyles
+                    )
+                 ]
+                    |> withMaybeAttribute (toString >> Attributes.max) attributes.max
+                    |> withMaybeAttribute (toString >> Attributes.min) attributes.min
+                    |> withMaybeAttribute Events.onBlur onBlur
+                )
+                []
 
-
-
--- , error
---     |> maybeIf showError
---     |> Maybe.map (errorToString >> errorMessage)
---     |> Maybe.withDefault (text "")
--- ]
+            -- TODO show error message?
+            ]
 
 
 view : ViewConfig values msg -> Form values msg -> Model values -> Html msg

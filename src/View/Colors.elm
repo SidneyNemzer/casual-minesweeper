@@ -10,7 +10,7 @@ lightGray =
 
 red : Css.Color
 red =
-    hex "#E75A5A"
+    hex "#E65A5A"
 
 
 blackString : String
