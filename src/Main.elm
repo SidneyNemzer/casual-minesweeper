@@ -6,42 +6,14 @@ import Html
 import Html.Styled exposing (Html, div, input, label, text, h1, span)
 import Html.Styled.Attributes exposing (css, type_, value)
 import Html.Styled.Events exposing (onInput, onClick)
-import Css
-    exposing
-        ( Style
-        , fontFamilies
-        , qt
-        , textAlign
-        , center
-        , letterSpacing
-        , em
-        , fontSize
-        , px
-        , color
-        , fontWeight
-        , bold
-        , displayFlex
-        , flexDirection
-        , column
-        , position
-        , absolute
-        , left
-        , pct
-        , bottom
-        , alignItems
-        , width
-        , height
-        , borderRadius
-        , hover
-        , backgroundColor
-        , cursor
-        , pointer
-        )
+import Css exposing (..)
 import Css.Transitions exposing (transition)
 import Random exposing (Generator, Seed)
 import Form exposing (Form)
-import Form.Value exposing (Value)
+import Form.Value
 import Form.View
+import Form.Settings
+import Style
 import View.Colors as Colors
 import View.Game exposing (MouseButton(..))
 import View.Icons
@@ -62,10 +34,10 @@ main =
 
 
 type alias SettingsValues =
-    { seed : Value Float
-    , mines : Value Float
-    , width : Value Float
-    , height : Value Float
+    { seed : Form.Value.Value Float
+    , mines : Form.Value.Value Float
+    , width : Form.Value.Value Float
+    , height : Form.Value.Value Float
     }
 
 
@@ -258,7 +230,7 @@ settingsForm =
     let
         seedField =
             Form.numberField
-                { parser = round >> Ok
+                { parser = Basics.round >> Ok
                 , value = .seed
                 , update = \v r -> { r | seed = v }
                 , attributes =
@@ -272,7 +244,7 @@ settingsForm =
 
         minesField =
             Form.numberField
-                { parser = round >> Ok
+                { parser = Basics.round >> Ok
                 , value = .mines
                 , update = \v r -> { r | mines = v }
                 , attributes =
@@ -286,7 +258,7 @@ settingsForm =
 
         widthField =
             Form.numberField
-                { parser = round >> Ok
+                { parser = Basics.round >> Ok
                 , value = .width
                 , update = \v r -> { r | width = v }
                 , attributes =
@@ -300,7 +272,7 @@ settingsForm =
 
         heightField =
             Form.numberField
-                { parser = round >> Ok
+                { parser = Basics.round >> Ok
                 , value = .height
                 , update = \v r -> { r | height = v }
                 , attributes =
@@ -332,25 +304,15 @@ viewEmptyBoard model =
         |> View.Game.board (Just (\point button -> StartGame point))
 
 
-monospaceFont : Style
-monospaceFont =
-    fontFamilies [ qt "PT Mono", "monospace" ]
-
-
-sansFont : Style
-sansFont =
-    fontFamilies [ qt "PT Sans", "sans-serif" ]
-
-
-title : Html msg
-title =
+title : Css.Color -> Html msg
+title textColor =
     h1
         [ css
             [ textAlign center
-            , monospaceFont
+            , Style.monospaceFont
             , letterSpacing (em 0.62)
             , fontSize (px 48)
-            , color Colors.text
+            , color textColor
             ]
         ]
         [ text "Casual Minesweeper" ]
@@ -387,7 +349,7 @@ viewMenuButton =
             [ css
                 [ fontWeight bold
                 , fontSize (px 24)
-                , sansFont
+                , Style.sansFont
                 ]
             ]
             [ text "MENU" ]
@@ -396,32 +358,38 @@ viewMenuButton =
 
 viewSettings : Model -> Html Msg
 viewSettings model =
-    div []
-        [ title
-        , Html.Styled.fromUnstyled <|
-            Form.View.asHtml
-                { onChange = SettingsChanged
-                , action =
-                    case model.state of
-                        Setup ->
-                            "DONE"
+    div
+        [ css
+            [ backgroundColor Colors.gray
+            , textAlign center
+            , height (pct 100)
+            , overflow auto
+            ]
+        ]
+        [ title Colors.white
+        , Form.Settings.view
+            { onChange = SettingsChanged
+            , action =
+                case model.state of
+                    Setup ->
+                        "DONE"
 
-                        Playing _ ->
-                            if model.confirmingRestart then
-                                "REALLY RESTART?"
-                            else
-                                "RESTART"
+                    Playing _ ->
+                        if model.confirmingRestart then
+                            "REALLY RESTART?"
+                        else
+                            "RESTART"
 
-                        EndWin _ ->
-                            "DONE"
+                    EndWin _ ->
+                        "DONE"
 
-                        EndLose _ _ ->
-                            "DONE"
-                , loading = ""
-                , validation = Form.View.ValidateOnSubmit
-                }
-                settingsForm
-                model.settings
+                    EndLose _ _ ->
+                        "DONE"
+            , loading = ""
+            , validation = Form.View.ValidateOnSubmit
+            }
+            settingsForm
+            model.settings
         , if model.confirmingRestart then
             button CancelRestart "cancel"
           else
@@ -437,27 +405,27 @@ view model =
         div [] <|
             case model.state of
                 Setup ->
-                    [ title
+                    [ title Colors.text
                     , viewEmptyBoard model
                     , viewMenuButton
                     ]
 
                 Playing gameBoard ->
-                    [ title
+                    [ title Colors.text
                     , View.Game.board (Just SquareClicked) gameBoard
                     , button ResetGame "Reset"
                     , viewMenuButton
                     ]
 
                 EndWin gameBoard ->
-                    [ title
+                    [ title Colors.text
                     , View.Game.board Nothing gameBoard
                     , button ResetGame "New Game"
                     , viewMenuButton
                     ]
 
                 EndLose point gameBoard ->
-                    [ title
+                    [ title Colors.text
                     , View.Game.board Nothing gameBoard
                     , button ResetGame "New Game"
                     , button UndoUncover "Undo"
