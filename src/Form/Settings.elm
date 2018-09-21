@@ -32,6 +32,9 @@ form { onSubmit, state, action, loading, fields } =
                 [ display inlineFlex
                 , flexDirection column
                 , alignItems stretch
+                , flexGrow (int 1)
+                , flexShrink zero
+                , justifyContent center
                 ]
              ]
                 ++ onSubmitEvent

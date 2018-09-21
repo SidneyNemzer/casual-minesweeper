@@ -362,9 +362,11 @@ viewSettings model =
     div
         [ css
             [ backgroundColor Colors.gray
-            , textAlign center
             , height (pct 100)
             , overflow auto
+            , displayFlex
+            , flexDirection column
+            , alignItems center
             ]
         ]
         [ title Colors.white
