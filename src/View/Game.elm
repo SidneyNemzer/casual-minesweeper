@@ -1,38 +1,7 @@
 module View.Game exposing (MouseButton(..), board)
 
 import Json.Decode as Decode
-import Css
-    exposing
-        ( px
-        , hex
-        , em
-        , width
-        , height
-        , border3
-        , padding3
-        , backgroundColor
-        , fontWeight
-        , fontFamily
-        , fontSize
-        , color
-        , listStyle
-        , cursor
-        , display
-        , inlineFlex
-        , alignItems
-        , justifyContent
-        , center
-        , margin
-        , auto
-        , whiteSpace
-        , noWrap
-        , textAlign
-        , overflow
-        , boxShadow
-        , boxShadow5
-        , active
-        , none
-        )
+import Css exposing (..)
 import Html.Styled exposing (Html, span, text, div)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (onClick)
@@ -110,7 +79,7 @@ squareWrapper content textColor clickMsg raised =
         [ text content ]
 
 
-viewSquare : Maybe (Point -> MouseButton -> msg) -> Location -> ( Square, Visibility ) -> Html msg
+viewSquare : Maybe (Point -> MouseButton -> msg) -> Location -> ( Square, Game.Visibility ) -> Html msg
 viewSquare pointClickMsg ( y, x ) ( square, visible ) =
     let
         clickMsg =
@@ -164,4 +133,4 @@ board clickMsg gameBoard =
     Matrix.mapWithLocation (viewSquare clickMsg) gameBoard
         |> Matrix.toList
         |> List.map (div [ css [ whiteSpace noWrap ] ])
-        |> div [ css [ textAlign center, overflow auto ] ]
+        |> div [ css [ textAlign center, overflow auto, padding (px 10) ] ]
