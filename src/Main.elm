@@ -1,7 +1,5 @@
 module Main exposing (main)
 
-import Data.Board exposing (Point)
-import Data.Game as Game exposing (GameBoard, GameState(..))
 import Html
 import Html.Styled exposing (Html, div, input, label, text, h1, span)
 import Html.Styled.Attributes exposing (css, type_, value)
@@ -14,8 +12,10 @@ import Form.Value
 import Form.View
 import Form.Settings
 import Style
+import Point exposing (Point)
+import Square exposing (ClickEvents)
+import Minefield exposing (GameState(..))
 import View.Colors as Colors
-import View.Game exposing (MouseButton(..))
 import View.Icons
 
 
@@ -83,9 +83,9 @@ init =
 
 
 type Msg
-    = StartGame Point
-    | ResetGame
-    | SquareClicked Point MouseButton
+    = ResetGame
+    | Uncover Point
+    | Flag Point
     | UndoUncover
     | ToggleSettings
     | SettingsChanged SettingsForm
@@ -101,39 +101,38 @@ userInputToInt default =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        StartGame point ->
-            let
-                generateBoard =
-                    Game.generateBoard
-                        { center = Just point
-                        , mines = model.mines
-                        , width = model.width
-                        , height = model.height
-                        , seed = Random.initialSeed model.seed
-                        }
-            in
-                case generateBoard of
-                    Ok board ->
-                        ( { model | state = Playing board }, Cmd.none )
-
-                    Err error ->
-                        Debug.crash "Game.generateBoard should clamp arguments, caller should check arg range"
-
         ResetGame ->
             ( { model | state = Setup }, Cmd.none )
 
-        SquareClicked point button ->
+        Uncover point ->
+            ( { model
+                | state =
+                    case model.state of
+                        Setup ->
+                            Playing <|
+                                Minefield.generate
+                                    { start = point
+                                    , mines = model.mines
+                                    , width = model.width
+                                    , height = model.height
+                                    , seed = Random.initialSeed model.seed
+                                    }
+
+                        Playing minefield ->
+                            Minefield.uncover point minefield
+
+                        _ ->
+                            model.state
+              }
+            , Cmd.none
+            )
+
+        Flag point ->
             case model.state of
-                Playing board ->
+                Playing minefield ->
                     ( { model
                         | state =
-                            case button of
-                                LeftClick ->
-                                    Game.revealSquare point board
-
-                                RightClick ->
-                                    Game.toggleFlag point board
-                                        |> Playing
+                            Playing <| Minefield.toggleFlag point minefield
                       }
                     , Cmd.none
                     )
@@ -143,10 +142,10 @@ update msg model =
 
         UndoUncover ->
             case model.state of
-                EndLose point board ->
+                EndLose point minefield ->
                     ( { model
                         | state =
-                            Playing <| Game.undoUncover point board
+                            Playing <| Minefield.undoMineUncover point minefield
                       }
                     , Cmd.none
                     )
@@ -298,12 +297,6 @@ button clickMsg content =
         [ text content ]
 
 
-viewEmptyBoard : Model -> Html Msg
-viewEmptyBoard model =
-    Game.emptyBoard model.width model.height
-        |> View.Game.board (Just (\point button -> StartGame point))
-
-
 title : Css.Color -> Html msg
 title textColor =
     h1
@@ -400,6 +393,13 @@ viewSettings model =
         ]
 
 
+events : ClickEvents Msg
+events =
+    { uncover = Uncover
+    , toggleFlag = Flag
+    }
+
+
 view : Model -> Html Msg
 view model =
     if model.showSettings then
@@ -409,27 +409,27 @@ view model =
             case model.state of
                 Setup ->
                     [ title Colors.text
-                    , viewEmptyBoard model
+                    , Minefield.viewEmpty events model.width model.height
                     , viewMenuButton
                     ]
 
-                Playing gameBoard ->
+                Playing minefield ->
                     [ title Colors.text
-                    , View.Game.board (Just SquareClicked) gameBoard
+                    , Minefield.view events minefield
                     , button ResetGame "Reset"
                     , viewMenuButton
                     ]
 
-                EndWin gameBoard ->
+                EndWin minefield ->
                     [ title Colors.text
-                    , View.Game.board Nothing gameBoard
+                    , Minefield.view events minefield
                     , button ResetGame "New Game"
                     , viewMenuButton
                     ]
 
-                EndLose point gameBoard ->
+                EndLose point minefield ->
                     [ title Colors.text
-                    , View.Game.board Nothing gameBoard
+                    , Minefield.view events minefield
                     , button ResetGame "New Game"
                     , button UndoUncover "Undo"
                     , viewMenuButton
