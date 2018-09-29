@@ -327,6 +327,7 @@ viewMenuButton =
             , borderRadius (pct 50)
             , color Colors.text
             , cursor pointer
+            , transform (translate (pct (-50)))
             , transition
                 [ Css.Transitions.backgroundColor 200
                 , Css.Transitions.color 200
