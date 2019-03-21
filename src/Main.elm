@@ -1,27 +1,27 @@
 module Main exposing (main)
 
-import Html
-import Html.Styled exposing (Html, div, input, label, text, h1, span)
-import Html.Styled.Attributes exposing (css, type_, value)
-import Html.Styled.Events exposing (onInput, onClick)
+import Browser
 import Css exposing (..)
 import Css.Transitions exposing (transition)
-import Random exposing (Generator, Seed)
 import Form exposing (Form)
-import Form.Value
-import Form.View
 import Form.Settings
-import Style
-import Point exposing (Point)
-import Square exposing (ClickEvents)
+import Form.View
+import Html
+import Html.Styled exposing (Html, div, h1, input, label, span, text)
+import Html.Styled.Attributes exposing (css, type_, value)
+import Html.Styled.Events exposing (onClick, onInput)
 import Minefield exposing (GameState(..))
+import Point exposing (Point)
+import Random exposing (Generator, Seed)
+import Square exposing (ClickEvents)
+import Style
 import View.Colors as Colors
 import View.Icons
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.program
+    Browser.element
         { init = init
         , view = view >> Html.Styled.toUnstyled
         , update = update
@@ -34,10 +34,10 @@ main =
 
 
 type alias SettingsValues =
-    { seed : Form.Value.Value Float
-    , mines : Form.Value.Value Float
-    , width : Form.Value.Value Float
-    , height : Form.Value.Value Float
+    { seed : Maybe Float
+    , mines : Maybe Float
+    , width : Maybe Float
+    , height : Maybe Float
     }
 
 
@@ -57,18 +57,18 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
-init =
+init : () -> ( Model, Cmd Msg )
+init () =
     ( { seed = 100
       , mines = 100
       , width = 24
       , height = 15
       , settings =
             Form.View.idle
-                { seed = Form.Value.filled 100
-                , mines = Form.Value.filled 100
-                , width = Form.Value.filled 24
-                , height = Form.Value.filled 15
+                { seed = Just 100
+                , mines = Just 100
+                , width = Just 24
+                , height = Just 15
                 }
       , showSettings = False
       , state = Setup
@@ -95,7 +95,7 @@ type Msg
 
 userInputToInt : Int -> String -> Int
 userInputToInt default =
-    String.toInt >> Result.withDefault default
+    String.toInt >> Maybe.withDefault default
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -154,10 +154,14 @@ update msg model =
                     ( model, Cmd.none )
 
         ToggleSettings ->
-            { model | showSettings = not model.showSettings } ! []
+            ( { model | showSettings = not model.showSettings }
+            , Cmd.none
+            )
 
         SettingsChanged form ->
-            { model | settings = form } ! []
+            ( { model | settings = form }
+            , Cmd.none
+            )
 
         RecreateBoard seed mines width height ->
             case model.state of
@@ -185,6 +189,7 @@ update msg model =
                           }
                         , Cmd.none
                         )
+
                     else
                         ( { model | confirmingRestart = True }, Cmd.none )
 
@@ -196,7 +201,6 @@ update msg model =
                         , height = height
                         , state = Setup
                         , showSettings = False
-                        , state = Setup
                       }
                     , Cmd.none
                     )
@@ -209,7 +213,6 @@ update msg model =
                         , height = height
                         , state = Setup
                         , showSettings = False
-                        , state = Setup
                       }
                     , Cmd.none
                     )
@@ -229,7 +232,7 @@ settingsForm =
     let
         seedField =
             Form.numberField
-                { parser = Basics.round >> Ok
+                { parser = Maybe.map Basics.round >> Result.fromMaybe ""
                 , value = .seed
                 , update = \v r -> { r | seed = v }
                 , attributes =
@@ -243,7 +246,7 @@ settingsForm =
 
         minesField =
             Form.numberField
-                { parser = Basics.round >> Ok
+                { parser = Maybe.map Basics.round >> Result.fromMaybe ""
                 , value = .mines
                 , update = \v r -> { r | mines = v }
                 , attributes =
@@ -257,7 +260,7 @@ settingsForm =
 
         widthField =
             Form.numberField
-                { parser = Basics.round >> Ok
+                { parser = Maybe.map Basics.round >> Result.fromMaybe ""
                 , value = .width
                 , update = \v r -> { r | width = v }
                 , attributes =
@@ -271,7 +274,7 @@ settingsForm =
 
         heightField =
             Form.numberField
-                { parser = Basics.round >> Ok
+                { parser = Maybe.map Basics.round >> Result.fromMaybe ""
                 , value = .height
                 , update = \v r -> { r | height = v }
                 , attributes =
@@ -283,11 +286,11 @@ settingsForm =
                     }
                 }
     in
-        Form.succeed RecreateBoard
-            |> Form.append seedField
-            |> Form.append minesField
-            |> Form.append widthField
-            |> Form.append heightField
+    Form.succeed RecreateBoard
+        |> Form.append seedField
+        |> Form.append minesField
+        |> Form.append widthField
+        |> Form.append heightField
 
 
 button : Msg -> String -> Html Msg
@@ -327,7 +330,7 @@ viewMenuButton =
             , borderRadius (pct 50)
             , color Colors.text
             , cursor pointer
-            , transform (translate (pct (-50)))
+            , transform (translate (pct -50))
             , transition
                 [ Css.Transitions.backgroundColor 200
                 , Css.Transitions.color 200
@@ -374,6 +377,7 @@ viewSettings model =
                     Playing _ ->
                         if model.confirmingRestart then
                             "REALLY RESTART?"
+
                         else
                             "RESTART"
 
@@ -389,6 +393,7 @@ viewSettings model =
             model.settings
         , if model.confirmingRestart then
             button CancelRestart "cancel"
+
           else
             text ""
         ]
@@ -405,6 +410,7 @@ view : Model -> Html Msg
 view model =
     if model.showSettings then
         viewSettings model
+
     else
         div [] <|
             case model.state of

@@ -1,23 +1,24 @@
-module Minefield
-    exposing
-        ( Minefield
-        , Config
-        , GameState(..)
-        , generate
-        , uncover
-        , toggleFlag
-        , undoMineUncover
-        , view
-        , viewEmpty
-        )
+module Minefield exposing
+    ( Config
+    , GameState(..)
+    , Minefield
+    , generate
+    , toggleFlag
+    , uncover
+    , undoMineUncover
+    , view
+    , viewEmpty
+    )
 
+import Array
+import Css exposing (..)
 import Html.Styled exposing (Html, div)
 import Html.Styled.Attributes exposing (css)
-import Css exposing (..)
-import Random exposing (Generator, Seed)
 import Matrix exposing (Matrix)
 import Point exposing (Point)
-import Square exposing (Square, Content(..), Visibility(..), ClickEvents)
+import Random exposing (Generator, Seed)
+import Square exposing (ClickEvents, Content(..), Square, Visibility(..))
+
 
 
 -- TYPES
@@ -51,6 +52,7 @@ boolToInt : Bool -> Int
 boolToInt bool =
     if bool then
         1
+
     else
         0
 
@@ -61,67 +63,66 @@ boolToInt bool =
 
 validSquare : Int -> Int -> Point -> Bool
 validSquare width height point =
-    (point.row > 0)
-        && (point.row < height)
-        && (point.column > 0)
-        && (point.column < height)
+    (point.y > 0)
+        && (point.y < height)
+        && (point.x > 0)
+        && (point.x < height)
 
 
 validSquaresAround : Int -> Int -> Point -> Int
 validSquaresAround width height point =
     let
-        validSquareOffset row column =
+        validSquareOffset y x =
             validSquare
                 width
                 height
                 { point
-                    | row = point.row + row
-                    , column = point.column + column
+                    | y = point.y + y
+                    , x = point.x + x
                 }
     in
-        [ validSquareOffset -1 -1
-        , validSquareOffset -1 0
-        , validSquareOffset -1 1
-        , validSquareOffset 0 -1
-        , validSquareOffset 0 0
-        , validSquareOffset 0 1
-        , validSquareOffset 1 -1
-        , validSquareOffset 1 0
-        , validSquareOffset 1 1
-        ]
-            |> List.map boolToInt
-            |> List.foldl (+) 0
+    [ validSquareOffset -1 -1
+    , validSquareOffset -1 0
+    , validSquareOffset -1 1
+    , validSquareOffset 0 -1
+    , validSquareOffset 0 0
+    , validSquareOffset 0 1
+    , validSquareOffset 1 -1
+    , validSquareOffset 1 0
+    , validSquareOffset 1 1
+    ]
+        |> List.map boolToInt
+        |> List.foldl (+) 0
 
 
 isAdjacent : Point -> Point -> Bool
 isAdjacent point1 point2 =
     let
-        equalsWithOffset row column =
+        equalsWithOffset y x =
             point1
                 == { point2
-                    | row = point2.row + row
-                    , column = point2.column + column
+                    | y = point2.y + y
+                    , x = point2.x + x
                    }
     in
-        equalsWithOffset -1 -1
-            || equalsWithOffset -1 0
-            || equalsWithOffset -1 1
-            || equalsWithOffset 0 -1
-            || equalsWithOffset 0 0
-            || equalsWithOffset 0 1
-            || equalsWithOffset 1 -1
-            || equalsWithOffset 1 0
-            || equalsWithOffset 1 1
+    equalsWithOffset -1 -1
+        || equalsWithOffset -1 0
+        || equalsWithOffset -1 1
+        || equalsWithOffset 0 -1
+        || equalsWithOffset 0 0
+        || equalsWithOffset 0 1
+        || equalsWithOffset 1 -1
+        || equalsWithOffset 1 0
+        || equalsWithOffset 1 1
 
 
 allSafeSquaresUncovered : Minefield -> Bool
 allSafeSquaresUncovered minefield =
-    Matrix.toList minefield
+    Matrix.toIndexedArray minefield
+        |> Array.toList
         |> List.any
-            (List.any
-                (\square ->
-                    square.content /= Mine && square.visibility /= Uncovered
-                )
+            (\( _, square ) ->
+                square.content /= Mine && square.visibility /= Uncovered
             )
         |> not
 
@@ -142,41 +143,40 @@ nextMine start width height oldSeed minefield =
             Random.step (pointGenerator width height) oldSeed
 
         square =
-            Matrix.get (Point.toLocation point) minefield
+            Matrix.get point minefield
                 |> Maybe.withDefault (Square Covered Empty)
 
         adjacentToStart =
             isAdjacent start point
     in
-        if square.content == Mine || adjacentToStart then
-            nextMine start width height seed minefield
-        else
-            ( point, seed )
+    if square.content == Mine || adjacentToStart then
+        nextMine start width height seed minefield
+
+    else
+        ( point, seed )
 
 
 insertMine : Point -> Minefield -> Minefield
 insertMine point minefield =
     let
-        incrementSquareOffset row column =
+        incrementSquareOffset y x =
             Matrix.update
-                (Point.toLocation
-                    { point
-                        | row = point.row + row
-                        , column = point.column + column
-                    }
-                )
+                { point
+                    | y = point.y + y
+                    , x = point.x + x
+                }
                 Square.increment
     in
-        minefield
-            |> incrementSquareOffset -1 -1
-            |> incrementSquareOffset -1 0
-            |> incrementSquareOffset -1 1
-            |> incrementSquareOffset 0 -1
-            |> Matrix.set (Point.toLocation point) (Square Covered Mine)
-            |> incrementSquareOffset 0 1
-            |> incrementSquareOffset 1 -1
-            |> incrementSquareOffset 1 0
-            |> incrementSquareOffset 1 1
+    minefield
+        |> incrementSquareOffset -1 -1
+        |> incrementSquareOffset -1 0
+        |> incrementSquareOffset -1 1
+        |> incrementSquareOffset 0 -1
+        |> Matrix.set point (Square Covered Mine)
+        |> incrementSquareOffset 0 1
+        |> incrementSquareOffset 1 -1
+        |> incrementSquareOffset 1 0
+        |> incrementSquareOffset 1 1
 
 
 generateMine : Point -> Int -> Int -> Int -> Seed -> Minefield -> Minefield
@@ -188,10 +188,11 @@ generateMine start mines width height oldSeed oldMinefield =
         minefield =
             insertMine point oldMinefield
     in
-        if mines > 0 then
-            generateMine start (mines - 1) width height seed minefield
-        else
-            minefield
+    if mines > 0 then
+        generateMine start (mines - 1) width height seed minefield
+
+    else
+        minefield
 
 
 generate : Config -> Minefield
@@ -203,9 +204,9 @@ generate { start, mines, width, height, seed } =
         area =
             width * height
     in
-        Matrix.matrix height width (always (Square Covered Empty))
-            |> generateMine start (min mines minimumArea) width height seed
-            |> uncoverConnectedEmpty start
+    Matrix.repeat width height (Square Covered Empty)
+        |> generateMine start (min mines minimumArea) width height seed
+        |> uncoverConnectedEmpty start
 
 
 
@@ -215,15 +216,15 @@ generate { start, mines, width, height, seed } =
 uncoverConnectedEmpty : Point -> Minefield -> Minefield
 uncoverConnectedEmpty point minefield =
     let
-        uncoverConnectedEmptyOffset row column =
+        uncoverConnectedEmptyOffset y x =
             uncoverConnectedEmpty
                 { point
-                    | row = point.row + row
-                    , column = point.column + column
+                    | y = point.y + y
+                    , x = point.x + x
                 }
 
         maybeSquare =
-            Matrix.get (Point.toLocation point) minefield
+            Matrix.get point minefield
 
         shouldUncover =
             maybeSquare
@@ -235,63 +236,63 @@ uncoverConnectedEmpty point minefield =
                 |> Maybe.map Square.isCoveredEmpty
                 |> Maybe.withDefault False
     in
-        if shouldUncoverMore then
-            minefield
-                |> uncoverConnectedEmptyOffset -1 -1
-                |> uncoverConnectedEmptyOffset -1 0
-                |> uncoverConnectedEmptyOffset -1 1
-                |> uncoverConnectedEmptyOffset 0 -1
-                |> Matrix.update
-                    (Point.toLocation point)
-                    (\square -> { square | visibility = Uncovered })
-                |> uncoverConnectedEmptyOffset 0 1
-                |> uncoverConnectedEmptyOffset 1 -1
-                |> uncoverConnectedEmptyOffset 1 0
-                |> uncoverConnectedEmptyOffset 1 1
-        else if shouldUncover then
-            Matrix.update
-                (Point.toLocation point)
+    if shouldUncoverMore then
+        minefield
+            |> uncoverConnectedEmptyOffset -1 -1
+            |> uncoverConnectedEmptyOffset -1 0
+            |> uncoverConnectedEmptyOffset -1 1
+            |> uncoverConnectedEmptyOffset 0 -1
+            |> Matrix.update
+                point
                 (\square -> { square | visibility = Uncovered })
-                minefield
-        else
+            |> uncoverConnectedEmptyOffset 0 1
+            |> uncoverConnectedEmptyOffset 1 -1
+            |> uncoverConnectedEmptyOffset 1 0
+            |> uncoverConnectedEmptyOffset 1 1
+
+    else if shouldUncover then
+        Matrix.update
+            point
+            (\square -> { square | visibility = Uncovered })
             minefield
+
+    else
+        minefield
 
 
 uncover : Point -> Minefield -> GameState
 uncover point oldMinefield =
-    let
-        location =
-            Point.toLocation point
-    in
-        Matrix.get location oldMinefield
-            |> Maybe.map
-                (\oldSquare ->
-                    let
-                        square =
-                            Square.uncover oldSquare
+    Matrix.get point oldMinefield
+        |> Maybe.map
+            (\oldSquare ->
+                let
+                    square =
+                        Square.uncover oldSquare
 
-                        minefield =
-                            Matrix.set location square oldMinefield
-                    in
-                        if square.content == Mine then
-                            EndLose point minefield
-                        else if allSafeSquaresUncovered minefield then
-                            EndWin minefield
-                        else
-                            Playing <| uncoverConnectedEmpty point oldMinefield
-                )
-            |> Maybe.withDefault (Playing oldMinefield)
+                    minefield =
+                        Matrix.set point square oldMinefield
+                in
+                if square.content == Mine then
+                    EndLose point minefield
+
+                else if allSafeSquaresUncovered minefield then
+                    EndWin minefield
+
+                else
+                    Playing <| uncoverConnectedEmpty point oldMinefield
+            )
+        |> Maybe.withDefault (Playing oldMinefield)
 
 
 toggleFlag : Point -> Minefield -> Minefield
 toggleFlag point minefield =
-    Matrix.update (Point.toLocation point) Square.toggleFlag minefield
+    Matrix.update point Square.toggleFlag minefield
 
 
 undoMineUncover : Point -> Minefield -> Minefield
 undoMineUncover point minefield =
     Matrix.set
-        (Point.toLocation point)
+        point
         { content = Mine, visibility = Flagged }
         minefield
 
@@ -302,19 +303,18 @@ undoMineUncover point minefield =
 
 viewEmpty : ClickEvents msg -> Int -> Int -> Html msg
 viewEmpty clickEvents width height =
-    Matrix.matrix height width (always (Square Covered Empty))
+    Matrix.repeat width height (Square Covered Empty)
         |> view clickEvents
 
 
 view : ClickEvents msg -> Minefield -> Html msg
 view clickEvents minefield =
-    Matrix.mapWithLocation
-        (\location ->
-            Square.view
-                clickEvents
-                (Point.fromLocation location)
-        )
-        minefield
-        |> Matrix.toList
+    Matrix.toIndexed2dList minefield
+        |> List.map
+            (List.map
+                (\( ( x, y ), square ) ->
+                    Square.view clickEvents (Point.Point y x) square
+                )
+            )
         |> List.map (div [ css [ whiteSpace noWrap ] ])
         |> div [ css [ textAlign center, overflow auto, padding (px 10) ] ]

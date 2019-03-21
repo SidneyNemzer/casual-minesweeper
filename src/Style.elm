@@ -1,8 +1,7 @@
-module Style
-    exposing
-        ( monospaceFont
-        , sansFont
-        )
+module Style exposing
+    ( monospaceFont
+    , sansFont
+    )
 
 import Css exposing (..)
 

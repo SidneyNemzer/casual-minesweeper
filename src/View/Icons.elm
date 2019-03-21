@@ -1,16 +1,16 @@
 module View.Icons exposing (arrowUp)
 
 import Html.Styled exposing (Html)
-import Svg.Styled exposing (svg, path)
+import Svg.Styled exposing (path, svg)
 import Svg.Styled.Attributes
     exposing
-        ( width
-        , height
-        , viewBox
+        ( d
         , fill
-        , d
+        , height
         , stroke
         , strokeWidth
+        , viewBox
+        , width
         )
 
 

@@ -1,24 +1,23 @@
-module Square
-    exposing
-        ( Square
-        , Content(..)
-        , Visibility(..)
-        , ClickEvents
-        , increment
-        , toggleFlag
-        , uncover
-        , isExploded
-        , isCoveredSafe
-        , isCoveredEmpty
-        , view
-        )
+module Square exposing
+    ( ClickEvents
+    , Content(..)
+    , Square
+    , Visibility(..)
+    , increment
+    , isCoveredEmpty
+    , isCoveredSafe
+    , isExploded
+    , toggleFlag
+    , uncover
+    , view
+    )
 
 import Char
-import Json.Decode as Decode
-import Html.Styled exposing (Html, Attribute, span, text)
+import Css exposing (..)
+import Html.Styled exposing (Attribute, Html, span, text)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (onClick)
-import Css exposing (..)
+import Json.Decode as Decode
 import Point exposing (Point)
 import View.Colors as Colors
 
@@ -167,12 +166,14 @@ nonBreakingSpace =
 
 onRightClick : msg -> Attribute msg
 onRightClick msg =
-    Html.Styled.Events.onWithOptions
+    Html.Styled.Events.custom
         "contextmenu"
-        { stopPropagation = True
-        , preventDefault = True
-        }
-        (Decode.succeed msg)
+        (Decode.succeed
+            { stopPropagation = True
+            , preventDefault = True
+            , message = msg
+            }
+        )
 
 
 squareBaseStyles : Style

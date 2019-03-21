@@ -32,7 +32,6 @@ module.exports = {
             exclude: [/elm-stuff/, /node_modules/],
             loader: 'elm-webpack-loader',
             options: {
-              warn: true,
               debug: true
             }
           },

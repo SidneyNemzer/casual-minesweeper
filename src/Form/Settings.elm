@@ -1,11 +1,11 @@
 module Form.Settings exposing (view)
 
-import Html.Styled as Html exposing (Html, Attribute, button, text, div, input, label, span)
-import Html.Styled.Attributes as Attributes exposing (css)
-import Html.Styled.Events as Events
 import Css exposing (..)
 import Form exposing (Form)
-import Form.View exposing (ViewConfig, Model, FormConfig, State(..), NumberFieldConfig)
+import Form.View exposing (FormConfig, Model, NumberFieldConfig, State(..), ViewConfig)
+import Html.Styled as Html exposing (Attribute, Html, button, div, input, label, span, text)
+import Html.Styled.Attributes as Attributes exposing (css)
+import Html.Styled.Events as Events
 import Style
 import View.Colors as Colors
 
@@ -26,53 +26,55 @@ form { onSubmit, state, action, loading, fields } =
                 Nothing ->
                     []
     in
-        Html.form
-            ([ css
-                [ display inlineFlex
-                , flexDirection column
-                , alignItems stretch
-                , flexGrow (int 1)
-                , flexShrink zero
-                , justifyContent center
-                ]
-             ]
-                ++ onSubmitEvent
-            )
-            (List.concat
-                [ fields
-                , [ case state of
-                        Error error ->
-                            errorMessage error
+    Html.form
+        ([ css
+            [ display inlineFlex
+            , flexDirection column
+            , alignItems stretch
+            , flexGrow (int 1)
+            , flexShrink zero
+            , justifyContent center
+            ]
+         ]
+            ++ onSubmitEvent
+        )
+        (List.concat
+            [ fields
+            , [ case state of
+                    Error error ->
+                        errorMessage error
 
-                        _ ->
-                            text ""
-                  , button
-                        [ Attributes.type_ "submit"
-                        , Attributes.disabled (onSubmit == Nothing)
-                        , css
-                            [ color Colors.white
-                            , backgroundColor Colors.lightGray
-                            , border (px 0)
-                            , fontSize (px 24)
-                            , height (px 80)
-                            , outline none
-                            , cursor pointer
-                            ]
+                    _ ->
+                        text ""
+              , button
+                    [ Attributes.type_ "submit"
+                    , Attributes.disabled (onSubmit == Nothing)
+                    , css
+                        [ color Colors.white
+                        , backgroundColor Colors.lightGray
+                        , border (px 0)
+                        , fontSize (px 24)
+                        , height (px 80)
+                        , outline none
+                        , cursor pointer
                         ]
-                        [ if state == Loading then
-                            text loading
-                          else
-                            text action
-                        ]
-                  ]
-                ]
-            )
+                    ]
+                    [ if state == Loading then
+                        text loading
+
+                      else
+                        text action
+                    ]
+              ]
+            ]
+        )
 
 
 fromString : (String -> Maybe a) -> Maybe a -> String -> Maybe a
 fromString parse currentValue input =
     if String.isEmpty input then
         Nothing
+
     else
         parse input
             |> Maybe.map Just
@@ -83,6 +85,7 @@ maybeIf : Bool -> Maybe a -> Maybe a
 maybeIf bool maybe =
     if bool then
         maybe
+
     else
         Nothing
 
@@ -103,53 +106,54 @@ numberField { onChange, onBlur, disabled, value, error, showError, attributes } 
         errorStyles =
             if error /= Nothing && showError then
                 [ borderBottom3 (px 3) solid Colors.red ]
+
             else
                 []
     in
-        span
+    span
+        [ css
+            [ displayFlex
+            , justifyContent spaceBetween
+            , marginBottom (px 50)
+            ]
+        ]
+        [ label
             [ css
-                [ displayFlex
-                , justifyContent spaceBetween
-                , marginBottom (px 50)
+                [ color Colors.white
+                , Style.sansFont
+                , fontSize (px 36)
+                , fontWeight bold
+                , marginRight (px 20)
                 ]
             ]
-            [ label
-                [ css
-                    [ color Colors.white
-                    , Style.sansFont
-                    , fontSize (px 36)
-                    , fontWeight bold
-                    , marginRight (px 20)
-                    ]
-                ]
-                [ text attributes.label ]
-            , input
-                ([ Events.onInput (fromString (String.toFloat >> Result.toMaybe) value >> onChange)
-                 , Attributes.disabled disabled
-                 , Attributes.value (value |> Maybe.map toString |> Maybe.withDefault "")
-                 , Attributes.placeholder attributes.placeholder
-                 , Attributes.type_ "number"
-                 , Attributes.step (toString attributes.step)
-                 , css
-                    ([ backgroundColor Colors.gray
-                     , color Colors.white
-                     , outline none
-                     , border (px 0)
-                     , borderBottom3 (px 3) solid Colors.white
-                     , fontSize (px 36)
-                     , width (px 200)
-                     ]
-                        ++ errorStyles
-                    )
+            [ text attributes.label ]
+        , input
+            ([ Events.onInput (fromString String.toFloat value >> onChange)
+             , Attributes.disabled disabled
+             , Attributes.value (value |> Maybe.map String.fromFloat |> Maybe.withDefault "")
+             , Attributes.placeholder attributes.placeholder
+             , Attributes.type_ "number"
+             , Attributes.step (String.fromFloat attributes.step)
+             , css
+                ([ backgroundColor Colors.gray
+                 , color Colors.white
+                 , outline none
+                 , border (px 0)
+                 , borderBottom3 (px 3) solid Colors.white
+                 , fontSize (px 36)
+                 , width (px 200)
                  ]
-                    |> withMaybeAttribute (toString >> Attributes.max) attributes.max
-                    |> withMaybeAttribute (toString >> Attributes.min) attributes.min
-                    |> withMaybeAttribute Events.onBlur onBlur
+                    ++ errorStyles
                 )
-                []
+             ]
+                |> withMaybeAttribute (String.fromFloat >> Attributes.max) attributes.max
+                |> withMaybeAttribute (String.fromFloat >> Attributes.min) attributes.min
+                |> withMaybeAttribute Events.onBlur onBlur
+            )
+            []
 
-            -- TODO show error message?
-            ]
+        -- TODO show error message?
+        ]
 
 
 view : ViewConfig values msg -> Form values msg -> Model values -> Html msg
@@ -166,5 +170,8 @@ view =
         , checkboxField = \_ -> text ""
         , radioField = \_ -> text ""
         , selectField = \_ -> text ""
+        , formList = \_ -> text ""
+        , formListItem = \_ -> text ""
+        , section = \_ _ -> text ""
         , group = div []
         }
