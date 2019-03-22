@@ -20,6 +20,7 @@ import Html.Styled.Events exposing (onClick)
 import Json.Decode as Decode
 import Point exposing (Point)
 import View.Colors as Colors
+import View.Icons
 
 
 type Content
@@ -248,10 +249,14 @@ view clickEvents point { visibility, content } =
                     [ squareBaseStyles
                     , backgroundColor Colors.white
                     , cursor Css.pointer
+                    , position relative
                     ]
                 , onRightClick (clickEvents.toggleFlag point)
                 ]
-                [ text "F" ]
+                [ text nonBreakingSpace
+                , span [ css [ position absolute, height (pct 70) ] ]
+                    [ View.Icons.flag ]
+                ]
 
         Uncovered ->
             span
