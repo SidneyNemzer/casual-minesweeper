@@ -27,17 +27,7 @@ form { onSubmit, state, action, loading, fields } =
                     []
     in
     Html.form
-        ([ css
-            [ display inlineFlex
-            , flexDirection column
-            , alignItems stretch
-            , flexGrow (int 1)
-            , flexShrink zero
-            , justifyContent center
-            ]
-         ]
-            ++ onSubmitEvent
-        )
+        onSubmitEvent
         (List.concat
             [ fields
             , [ case state of
@@ -57,6 +47,7 @@ form { onSubmit, state, action, loading, fields } =
                         , height (px 80)
                         , outline none
                         , cursor pointer
+                        , width (pct 100)
                         ]
                     ]
                     [ if state == Loading then

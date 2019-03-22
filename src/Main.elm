@@ -295,8 +295,31 @@ settingsForm =
 
 button : Msg -> String -> Html Msg
 button clickMsg content =
-    Html.Styled.button
-        [ onClick clickMsg ]
+    span
+        [ css
+            [ fontWeight bold
+            , fontSize (px 24)
+            , Style.sansFont
+            , color Colors.text
+            , cursor pointer
+            ]
+        , onClick clickMsg
+        ]
+        [ text content ]
+
+
+lightButton : Msg -> String -> Html Msg
+lightButton clickMsg content =
+    span
+        [ css
+            [ fontWeight bold
+            , fontSize (px 24)
+            , Style.sansFont
+            , color Colors.white
+            , cursor pointer
+            ]
+        , onClick clickMsg
+        ]
         [ text content ]
 
 
@@ -315,22 +338,18 @@ title textColor =
         [ text "Casual Minesweeper" ]
 
 
-viewMenuButton : Html Msg
-viewMenuButton =
+menuButtonLarge : Html Msg
+menuButtonLarge =
     div
         [ css
-            [ displayFlex
+            [ display inlineFlex
             , flexDirection column
             , alignItems center
-            , position absolute
-            , left (pct 50)
-            , bottom (px 20)
+            , borderRadius (pct 50)
             , width (px 90)
             , height (px 90)
-            , borderRadius (pct 50)
             , color Colors.text
             , cursor pointer
-            , transform (translate (pct -50))
             , transition
                 [ Css.Transitions.backgroundColor 200
                 , Css.Transitions.color 200
@@ -354,6 +373,21 @@ viewMenuButton =
         ]
 
 
+menuButtonSmall : Html Msg
+menuButtonSmall =
+    span
+        [ css
+            [ fontWeight bold
+            , fontSize (px 24)
+            , Style.sansFont
+            , color Colors.text
+            , cursor pointer
+            ]
+        , onClick ToggleSettings
+        ]
+        [ text "MENU" ]
+
+
 viewSettings : Model -> Html Msg
 viewSettings model =
     div
@@ -367,35 +401,45 @@ viewSettings model =
             ]
         ]
         [ title Colors.white
-        , Form.Settings.view
-            { onChange = SettingsChanged
-            , action =
-                case model.state of
-                    Setup ->
-                        "DONE"
+        , div
+            [ css
+                [ display inlineFlex
+                , flexDirection column
+                , alignItems stretch
+                , justifyContent center
+                , flexGrow (int 1)
+                , flexShrink (int 0)
+                , textAlign center
+                ]
+            ]
+            [ div [ css [ marginBottom (px 20) ] ]
+                [ Form.Settings.view
+                    { onChange = SettingsChanged
+                    , action =
+                        case model.state of
+                            Setup ->
+                                "DONE"
 
-                    Playing _ ->
-                        if model.confirmingRestart then
-                            "REALLY RESTART?"
+                            Playing _ ->
+                                if model.confirmingRestart then
+                                    "REALLY RESTART?"
 
-                        else
-                            "RESTART"
+                                else
+                                    "RESTART"
 
-                    EndWin _ ->
-                        "DONE"
+                            EndWin _ ->
+                                "DONE"
 
-                    EndLose _ _ ->
-                        "DONE"
-            , loading = ""
-            , validation = Form.View.ValidateOnSubmit
-            }
-            settingsForm
-            model.settings
-        , if model.confirmingRestart then
-            button CancelRestart "cancel"
-
-          else
-            text ""
+                            EndLose _ _ ->
+                                "DONE"
+                    , loading = ""
+                    , validation = Form.View.ValidateOnSubmit
+                    }
+                    settingsForm
+                    model.settings
+                ]
+            , lightButton CancelRestart "CANCEL"
+            ]
         ]
 
 
@@ -404,6 +448,25 @@ events =
     { uncover = Uncover
     , toggleFlag = Flag
     }
+
+
+buttons : List (Html Msg) -> Html Msg
+buttons =
+    div
+        [ css
+            [ position absolute
+            , bottom (px 0)
+            , left (px 0)
+            , right (px 0)
+            , marginBottom (px 30)
+            , textAlign center
+            ]
+        ]
+
+
+spanMarginRight : Html Msg -> Html Msg
+spanMarginRight child =
+    span [ css [ marginRight (px 20) ] ] [ child ]
 
 
 view : Model -> Html Msg
@@ -417,27 +480,33 @@ view model =
                 Setup ->
                     [ title Colors.text
                     , Minefield.viewEmpty events model.width model.height
-                    , viewMenuButton
+                    , buttons [ menuButtonLarge ]
                     ]
 
                 Playing minefield ->
                     [ title Colors.text
                     , Minefield.view events minefield
-                    , button ResetGame "Reset"
-                    , viewMenuButton
+                    , buttons
+                        [ spanMarginRight (button ResetGame "RESTART")
+                        , menuButtonSmall
+                        ]
                     ]
 
                 EndWin minefield ->
                     [ title Colors.text
                     , Minefield.view events minefield
-                    , button ResetGame "New Game"
-                    , viewMenuButton
+                    , buttons
+                        [ spanMarginRight (button ResetGame "NEW GAME")
+                        , menuButtonSmall
+                        ]
                     ]
 
                 EndLose point minefield ->
                     [ title Colors.text
                     , Minefield.view events minefield
-                    , button ResetGame "New Game"
-                    , button UndoUncover "Undo"
-                    , viewMenuButton
+                    , buttons
+                        [ spanMarginRight (button ResetGame "NEW GAME")
+                        , spanMarginRight (button UndoUncover "UNDO")
+                        , menuButtonSmall
+                        ]
                     ]
