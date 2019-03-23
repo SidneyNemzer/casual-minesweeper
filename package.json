@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "start": "webpack-dev-server --mode development",
-    "build": "webpack --mode production --progress"
+    "build": "webpack --mode production --progress",
+    "deploy": "bash ./scripts/deploy"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^2.0.1",
