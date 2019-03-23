@@ -353,10 +353,12 @@ menuButtonLarge =
             , transition
                 [ Css.Transitions.backgroundColor 200
                 , Css.Transitions.color 200
+                , Css.Transitions.boxShadow 200
                 ]
             , hover
-                [ backgroundColor Colors.black
+                [ backgroundColor Colors.gray
                 , color Colors.white
+                , boxShadow5 zero zero (px 30) (px -5) Colors.gray
                 ]
             ]
         , onClick ToggleSettings
