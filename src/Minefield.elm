@@ -309,6 +309,18 @@ undoMineUncover point minefield =
 -- VIEW
 
 
+container : List (Html msg) -> Html msg
+container =
+    div
+        [ css
+            [ textAlign center
+            , overflow auto
+            , padding (px 10)
+            , property "user-select" "none"
+            ]
+        ]
+
+
 viewEmpty : ClickEvents msg -> Int -> Int -> Html msg
 viewEmpty clickEvents width height =
     Matrix.repeat width height (Square Covered Empty)
@@ -325,7 +337,7 @@ view clickEvents minefield =
                 )
             )
         |> List.map (div [ css [ whiteSpace noWrap ] ])
-        |> div [ css [ textAlign center, overflow auto, padding (px 10) ] ]
+        |> container
 
 
 viewMinesFlagged : ClickEvents msg -> Minefield -> Html msg
@@ -346,4 +358,4 @@ viewMinesFlagged clickEvents minefield =
                 )
             )
         |> List.map (div [ css [ whiteSpace noWrap ] ])
-        |> div [ css [ textAlign center, overflow auto, padding (px 10) ] ]
+        |> container
