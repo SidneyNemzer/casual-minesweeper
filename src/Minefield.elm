@@ -8,6 +8,7 @@ module Minefield exposing
     , undoMineUncover
     , view
     , viewEmpty
+    , viewMinesFlagged
     )
 
 import Array
@@ -321,6 +322,27 @@ view clickEvents minefield =
             (List.map
                 (\( ( x, y ), square ) ->
                     Square.view clickEvents (Point.Point y x) square
+                )
+            )
+        |> List.map (div [ css [ whiteSpace noWrap ] ])
+        |> div [ css [ textAlign center, overflow auto, padding (px 10) ] ]
+
+
+viewMinesFlagged : ClickEvents msg -> Minefield -> Html msg
+viewMinesFlagged clickEvents minefield =
+    Matrix.toIndexed2dList minefield
+        |> List.map
+            (List.map
+                (\( ( x, y ), square ) ->
+                    let
+                        flaggedSquare =
+                            if square.content == Square.Mine then
+                                { square | visibility = Square.Flagged }
+
+                            else
+                                square
+                    in
+                    Square.view clickEvents (Point.Point y x) flaggedSquare
                 )
             )
         |> List.map (div [ css [ whiteSpace noWrap ] ])

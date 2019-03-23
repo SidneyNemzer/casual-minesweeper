@@ -495,7 +495,7 @@ view model =
 
                 EndWin minefield ->
                     [ title Colors.text
-                    , Minefield.view events minefield
+                    , Minefield.viewMinesFlagged events minefield
                     , buttons
                         [ spanMarginRight (button ResetGame "NEW GAME")
                         , menuButtonSmall
