@@ -445,7 +445,7 @@ viewSettings model =
             [ css
                 [ color Colors.white
                 , Style.sansFont
-                , marginBottom (px 20)
+                , marginBottom (px 10)
                 ]
             ]
             [ text "AN "
@@ -462,6 +462,21 @@ viewSettings model =
                 , target "blank_"
                 ]
                 [ text "SIDNEY NEMZER" ]
+            ]
+        , span
+            [ css
+                [ color Colors.white
+                , Style.sansFont
+                , marginBottom (px 20)
+                ]
+            ]
+            [ text "DESIGN AND ARTWORK BY "
+            , a
+                [ css [ color Colors.white ]
+                , href "https://github.com/kevinbehan"
+                , target "blank_"
+                ]
+                [ text "KEVIN BEHAN" ]
             ]
         ]
 
