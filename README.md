@@ -8,6 +8,6 @@ Report bugs by [opening an issue](https://github.com/SidneyNemzer/casual-mineswe
 
 ## Credits
 
-Created by Sidney Nemzer
+Created by [Sidney Nemzer](https://github.com/SidneyNemzer)
 
-Design and artwork by Kevin Behan
+Design and artwork by [Kevin Behan](https://github.com/kevinbehan)
