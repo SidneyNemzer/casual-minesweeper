@@ -160,7 +160,6 @@ squareBaseStyles =
         , fontSize (px 20)
         , color Colors.red
         , border3 (px 1) Css.solid Colors.lightGray
-        , boxShadow5 (px 0) (px 0) (px 5) (px 0) Colors.black
         ]
 
 
@@ -212,7 +211,6 @@ view clickEvents point { visibility, content } =
                     [ squareBaseStyles
                     , backgroundColor Colors.white
                     , cursor Css.pointer
-                    , active [ boxShadow none ]
                     ]
                 , onClick (clickEvents.uncover point)
                 , onRightClick (clickEvents.toggleFlag point)
