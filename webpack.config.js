@@ -33,7 +33,10 @@ module.exports = (env, args) => {
               test: /\.elm$/,
               exclude: [/elm-stuff/, /node_modules/],
               loader: 'elm-webpack-loader',
-              options: { debug: args.mode !== 'production' }
+              options: {
+                debug: args.mode !== 'production',
+                optimize: args.mode === 'production'
+              }
             },
             // "css" loader resolves paths in CSS and adds assets as dependencies.
             // "style" loader turns CSS into JS modules that inject <style> tags.
