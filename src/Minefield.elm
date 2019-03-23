@@ -198,14 +198,14 @@ generateMine start mines width height oldSeed oldMinefield =
 generate : Config -> Minefield
 generate { start, mines, width, height, seed } =
     let
-        minimumArea =
-            mines + validSquaresAround width height start
+        safeSquares =
+            validSquaresAround width height start
 
         area =
             width * height
     in
     Matrix.repeat width height (Square Covered Empty)
-        |> generateMine start (min mines minimumArea) width height seed
+        |> generateMine start (min (area - safeSquares) mines) width height seed
         |> uncoverConnectedEmpty start
 
 
