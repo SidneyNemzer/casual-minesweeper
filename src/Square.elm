@@ -113,36 +113,7 @@ isExploded square =
 
 isCoveredSafe : Square -> Bool
 isCoveredSafe square =
-    case ( square.content, square.visibility ) of
-        ( Empty, Covered ) ->
-            True
-
-        ( Number1, Covered ) ->
-            True
-
-        ( Number2, Covered ) ->
-            True
-
-        ( Number3, Covered ) ->
-            True
-
-        ( Number4, Covered ) ->
-            True
-
-        ( Number5, Covered ) ->
-            True
-
-        ( Number6, Covered ) ->
-            True
-
-        ( Number7, Covered ) ->
-            True
-
-        ( Number8, Covered ) ->
-            True
-
-        _ ->
-            False
+    square.content /= Mine && square.visibility == Covered
 
 
 isCoveredEmpty : Square -> Bool
