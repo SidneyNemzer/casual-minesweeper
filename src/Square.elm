@@ -164,38 +164,43 @@ squareBaseStyles =
         ]
 
 
-viewContent : Content -> Html msg
+viewContent : Content -> ( List Css.Style, List (Html msg) )
 viewContent content =
     case content of
         Mine ->
-            text "*"
+            ( [ position relative, backgroundColor Colors.red ]
+            , [ text nonBreakingSpace
+              , span [ css [ position absolute, height (pct 70) ] ]
+                    [ View.Icons.mine ]
+              ]
+            )
 
         Empty ->
-            text nonBreakingSpace
+            ( [ backgroundColor Colors.black ], [ text nonBreakingSpace ] )
 
         Number1 ->
-            text "1"
+            ( [ backgroundColor Colors.black ], [ text "1" ] )
 
         Number2 ->
-            text "2"
+            ( [ backgroundColor Colors.black ], [ text "2" ] )
 
         Number3 ->
-            text "3"
+            ( [ backgroundColor Colors.black ], [ text "3" ] )
 
         Number4 ->
-            text "4"
+            ( [ backgroundColor Colors.black ], [ text "4" ] )
 
         Number5 ->
-            text "5"
+            ( [ backgroundColor Colors.black ], [ text "5" ] )
 
         Number6 ->
-            text "6"
+            ( [ backgroundColor Colors.black ], [ text "6" ] )
 
         Number7 ->
-            text "7"
+            ( [ backgroundColor Colors.black ], [ text "7" ] )
 
         Number8 ->
-            text "8"
+            ( [ backgroundColor Colors.black ], [ text "8" ] )
 
 
 view : ClickEvents msg -> Point -> Square -> Html msg
@@ -230,10 +235,8 @@ view clickEvents point { visibility, content } =
                 ]
 
         Uncovered ->
-            span
-                [ css
-                    [ squareBaseStyles
-                    , backgroundColor Colors.black
-                    ]
-                ]
-                [ viewContent content ]
+            let
+                ( styles, children ) =
+                    viewContent content
+            in
+            span [ css (squareBaseStyles :: styles) ] children
