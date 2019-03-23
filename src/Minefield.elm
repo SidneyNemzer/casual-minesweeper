@@ -188,7 +188,7 @@ generateMine start mines width height oldSeed oldMinefield =
         minefield =
             insertMine point oldMinefield
     in
-    if mines > 0 then
+    if mines > 1 then
         generateMine start (mines - 1) width height seed minefield
 
     else
