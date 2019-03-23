@@ -195,7 +195,7 @@ generateMine start mines width height oldSeed oldMinefield =
         minefield
 
 
-generate : Config -> Minefield
+generate : Config -> GameState
 generate { start, mines, width, height, seed } =
     let
         safeSquares =
@@ -203,10 +203,17 @@ generate { start, mines, width, height, seed } =
 
         area =
             width * height
+
+        minefield =
+            Matrix.repeat width height (Square Covered Empty)
+                |> generateMine start (min (area - safeSquares) mines) width height seed
+                |> uncoverConnectedEmpty start
     in
-    Matrix.repeat width height (Square Covered Empty)
-        |> generateMine start (min (area - safeSquares) mines) width height seed
-        |> uncoverConnectedEmpty start
+    if allSafeSquaresUncovered minefield then
+        EndWin minefield
+
+    else
+        Playing minefield
 
 
 

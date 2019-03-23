@@ -109,14 +109,13 @@ update msg model =
                 | state =
                     case model.state of
                         Setup ->
-                            Playing <|
-                                Minefield.generate
-                                    { start = point
-                                    , mines = model.mines
-                                    , width = model.width
-                                    , height = model.height
-                                    , seed = Random.initialSeed model.seed
-                                    }
+                            Minefield.generate
+                                { start = point
+                                , mines = model.mines
+                                , width = model.width
+                                , height = model.height
+                                , seed = Random.initialSeed model.seed
+                                }
 
                         Playing minefield ->
                             Minefield.uncover point minefield
