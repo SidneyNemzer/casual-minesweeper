@@ -1,3 +1,8 @@
 import { Elm } from './Main.elm'
 
-Elm.Main.init({ node: document.querySelector('body') })
+const div = document.createElement('div')
+document.body.appendChild(div)
+
+Elm.Main.init({
+  node: div,
+})
