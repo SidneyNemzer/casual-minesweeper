@@ -19,7 +19,7 @@ import View.Colors as Colors
 import View.Icons
 
 
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element
         { init = init
@@ -33,9 +33,12 @@ main =
 -- MODEL
 
 
+type alias Flags =
+    { seed : Int }
+
+
 type alias SettingsValues =
-    { seed : Maybe Float
-    , mines : Maybe Float
+    { mines : Maybe Float
     , width : Maybe Float
     , height : Maybe Float
     }
@@ -46,7 +49,7 @@ type alias SettingsForm =
 
 
 type alias Model =
-    { seed : Int
+    { seed : Seed
     , mines : Int
     , width : Int
     , height : Int
@@ -57,16 +60,15 @@ type alias Model =
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init () =
-    ( { seed = 100
+init : Flags -> ( Model, Cmd Msg )
+init { seed } =
+    ( { seed = Random.initialSeed seed
       , mines = 100
       , width = 24
       , height = 15
       , settings =
             Form.View.idle
-                { seed = Just 100
-                , mines = Just 100
+                { mines = Just 100
                 , width = Just 24
                 , height = Just 15
                 }
@@ -89,7 +91,7 @@ type Msg
     | UndoUncover
     | ToggleSettings
     | SettingsChanged SettingsForm
-    | RecreateBoard Int Int Int Int
+    | RecreateBoard Int Int Int
     | CancelRestart
 
 
@@ -105,24 +107,25 @@ update msg model =
             ( { model | state = Setup }, Cmd.none )
 
         Uncover point ->
-            ( { model
-                | state =
-                    case model.state of
-                        Setup ->
+            ( case model.state of
+                Setup ->
+                    let
+                        ( gameState, nextSeed ) =
                             Minefield.generate
                                 { start = point
                                 , mines = model.mines
                                 , width = model.width
                                 , height = model.height
-                                , seed = Random.initialSeed model.seed
+                                , seed = model.seed
                                 }
+                    in
+                    { model | state = gameState, seed = nextSeed }
 
-                        Playing minefield ->
-                            Minefield.uncover point minefield
+                Playing minefield ->
+                    { model | state = Minefield.uncover point minefield }
 
-                        _ ->
-                            model.state
-              }
+                _ ->
+                    model
             , Cmd.none
             )
 
@@ -162,12 +165,11 @@ update msg model =
             , Cmd.none
             )
 
-        RecreateBoard seed mines width height ->
+        RecreateBoard mines width height ->
             case model.state of
                 Setup ->
                     ( { model
-                        | seed = seed
-                        , mines = mines
+                        | mines = mines
                         , width = width
                         , height = height
                         , showSettings = False
@@ -179,7 +181,6 @@ update msg model =
                     if model.confirmingRestart then
                         ( { model
                             | confirmingRestart = False
-                            , seed = seed
                             , mines = mines
                             , width = width
                             , height = height
@@ -194,8 +195,7 @@ update msg model =
 
                 EndWin _ ->
                     ( { model
-                        | seed = seed
-                        , mines = mines
+                        | mines = mines
                         , width = width
                         , height = height
                         , state = Setup
@@ -206,8 +206,7 @@ update msg model =
 
                 EndLose _ _ ->
                     ( { model
-                        | seed = seed
-                        , mines = mines
+                        | mines = mines
                         , width = width
                         , height = height
                         , state = Setup
@@ -229,20 +228,6 @@ update msg model =
 settingsForm : Form SettingsValues Msg
 settingsForm =
     let
-        seedField =
-            Form.numberField
-                { parser = Maybe.map Basics.round >> Result.fromMaybe ""
-                , value = .seed
-                , update = \v r -> { r | seed = v }
-                , attributes =
-                    { label = "SEED"
-                    , placeholder = ""
-                    , step = 1
-                    , min = Nothing
-                    , max = Nothing
-                    }
-                }
-
         minesField =
             Form.numberField
                 { parser = Maybe.map Basics.round >> Result.fromMaybe ""
@@ -286,7 +271,6 @@ settingsForm =
                 }
     in
     Form.succeed RecreateBoard
-        |> Form.append seedField
         |> Form.append minesField
         |> Form.append widthField
         |> Form.append heightField

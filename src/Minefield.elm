@@ -180,7 +180,7 @@ insertMine point minefield =
         |> incrementSquareOffset 1 1
 
 
-generateMine : Point -> Int -> Int -> Int -> Seed -> Minefield -> Minefield
+generateMine : Point -> Int -> Int -> Int -> Seed -> Minefield -> ( Minefield, Seed )
 generateMine start mines width height oldSeed oldMinefield =
     let
         ( point, seed ) =
@@ -193,10 +193,10 @@ generateMine start mines width height oldSeed oldMinefield =
         generateMine start (mines - 1) width height seed minefield
 
     else
-        minefield
+        ( minefield, seed )
 
 
-generate : Config -> GameState
+generate : Config -> ( GameState, Seed )
 generate { start, mines, width, height, seed } =
     let
         safeSquares =
@@ -205,16 +205,16 @@ generate { start, mines, width, height, seed } =
         area =
             width * height
 
-        minefield =
+        ( minefield, nextSeed ) =
             Matrix.repeat width height (Square Covered Empty)
                 |> generateMine start (min (area - safeSquares) mines) width height seed
-                |> uncoverConnectedEmpty start
+                |> Tuple.mapFirst (uncoverConnectedEmpty start)
     in
     if allSafeSquaresUncovered minefield then
-        EndWin minefield
+        ( EndWin minefield, nextSeed )
 
     else
-        Playing minefield
+        ( Playing minefield, nextSeed )
 
 
 
