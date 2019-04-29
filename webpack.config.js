@@ -7,6 +7,8 @@ module.exports = (env, args) => {
   return {
     mode: args.mode || 'development',
 
+    devtool: args.mode !== 'production' && 'cheap-eval-source-map',
+
     context: path.resolve(__dirname),
     output: {
       path: path.resolve(__dirname, './build')
