@@ -8,7 +8,7 @@ import Form.Settings
 import Form.View
 import Html
 import Html.Styled exposing (Html, a, div, h1, input, label, span, text)
-import Html.Styled.Attributes exposing (css, href, target, type_, value)
+import Html.Styled.Attributes as HA exposing (css, href, type_, value)
 import Html.Styled.Events exposing (onClick, onInput)
 import Minefield exposing (GameState(..))
 import Point exposing (Point)
@@ -436,14 +436,14 @@ viewSettings model =
             , a
                 [ css [ color Colors.white ]
                 , href "https://github.com/SidneyNemzer/casual-minesweeper"
-                , target "blank_"
+                , HA.target "blank_"
                 ]
                 [ text "OPEN SOURCE PROJECT" ]
             , text " CREATED BY "
             , a
                 [ css [ color Colors.white ]
                 , href "https://github.com/SidneyNemzer"
-                , target "blank_"
+                , HA.target "blank_"
                 ]
                 [ text "SIDNEY NEMZER" ]
             ]
@@ -458,7 +458,7 @@ viewSettings model =
             , a
                 [ css [ color Colors.white ]
                 , href "https://github.com/kevinbehan"
-                , target "blank_"
+                , HA.target "blank_"
                 ]
                 [ text "KEVIN BEHAN" ]
             ]
