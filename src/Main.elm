@@ -62,14 +62,14 @@ type alias Model =
 init : Flags -> ( Model, Cmd Msg )
 init { seed } =
     ( { seed = Random.initialSeed seed
-      , mines = 100
-      , width = 24
-      , height = 15
+      , mines = 99
+      , width = 30
+      , height = 16
       , settings =
             Form.View.idle
-                { mines = Just 100
-                , width = Just 24
-                , height = Just 15
+                { mines = Just 99
+                , width = Just 30
+                , height = Just 16
                 }
       , showSettings = False
       , state = Setup
