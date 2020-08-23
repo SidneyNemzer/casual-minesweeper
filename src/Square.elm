@@ -43,7 +43,9 @@ type Visibility
 
 
 type alias Square =
-    { visibility : Visibility, content : Content }
+    { visibility : Visibility
+    , content : Content
+    }
 
 
 incrementContent : Content -> Content

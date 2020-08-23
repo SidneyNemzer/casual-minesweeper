@@ -67,7 +67,7 @@ validSquare width height point =
     (point.y > 0)
         && (point.y < height)
         && (point.x > 0)
-        && (point.x < height)
+        && (point.x < width)
 
 
 validSquaresAround : Int -> Int -> Point -> Int

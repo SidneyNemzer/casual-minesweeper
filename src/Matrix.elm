@@ -170,22 +170,6 @@ update point f matrix =
             set point (f v) matrix
 
 
-getRow : Int -> Matrix a -> Maybe (Array a)
-getRow y matrix =
-    let
-        start =
-            y * width matrix
-
-        end =
-            start + width matrix
-    in
-    if end > (width matrix * height matrix) then
-        Nothing
-
-    else
-        Just <| Array.slice start end matrix.data
-
-
 {-| Apply a function of every element in the matrix
 -}
 map : (a -> b) -> Matrix a -> Matrix b

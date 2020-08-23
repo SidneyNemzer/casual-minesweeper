@@ -72,15 +72,6 @@ fromString parse currentValue input =
             |> Maybe.withDefault currentValue
 
 
-maybeIf : Bool -> Maybe a -> Maybe a
-maybeIf bool maybe =
-    if bool then
-        maybe
-
-    else
-        Nothing
-
-
 withMaybeAttribute :
     (a -> Attribute msg)
     -> Maybe a

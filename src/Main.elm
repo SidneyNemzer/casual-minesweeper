@@ -6,13 +6,12 @@ import Css.Transitions exposing (transition)
 import Form exposing (Form)
 import Form.Settings
 import Form.View
-import Html
-import Html.Styled exposing (Html, a, div, h1, input, label, span, text)
-import Html.Styled.Attributes as HA exposing (css, href, type_, value)
-import Html.Styled.Events exposing (onClick, onInput)
+import Html.Styled exposing (Html, a, div, h1, span, text)
+import Html.Styled.Attributes as HA exposing (css, href)
+import Html.Styled.Events exposing (onClick)
 import Minefield exposing (GameState(..))
 import Point exposing (Point)
-import Random exposing (Generator, Seed)
+import Random exposing (Seed)
 import Square exposing (ClickEvents)
 import Style
 import View.Colors as Colors
@@ -93,11 +92,6 @@ type Msg
     | SettingsChanged SettingsForm
     | RecreateBoard Int Int Int
     | CancelRestart
-
-
-userInputToInt : Int -> String -> Int
-userInputToInt default =
-    String.toInt >> Maybe.withDefault default
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -523,7 +517,7 @@ view model =
                         ]
                     ]
 
-                EndLose point minefield ->
+                EndLose _ minefield ->
                     [ title Colors.text
                     , Minefield.view events minefield
                     , buttons
