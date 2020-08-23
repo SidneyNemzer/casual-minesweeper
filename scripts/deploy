@@ -2,7 +2,7 @@
 
 set -e
 
-git clone --branch gh-pages --depth 1 https://github.com/sidneynemzer/casual-minesweeper deploy
+git clone --branch gh-pages --depth 1 git@github.com:SidneyNemzer/casual-minesweeper.git deploy
 npm run build
 cp build/* deploy
 cd deploy
